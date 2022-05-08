@@ -1,6 +1,9 @@
 package main
 
 import (
+	"github.com/ckjeldgaard/cycling_api/docs"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -8,10 +11,16 @@ import (
 
 func main() {
 	router := gin.Default()
-	router.GET("/riders", getRiders)
-	router.GET("/riders/:id", getRiderByID)
-	router.POST("/riders", addRider)
+	docs.SwaggerInfo.BasePath = "/api/v1"
 
+	v1 := router.Group("/api/v1")
+	{
+		v1.GET("/riders", getRiders)
+		v1.GET("/riders/:id", getRiderByID)
+		v1.POST("/riders", addRider)
+	}
+
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	router.Run("localhost:8080")
 }
 
@@ -24,7 +33,14 @@ var riders = []rider{
 	{ID: "5", Name: "Tadej Pogačar", Nationality: "Slovenia", Age: 23, Team: "UAE Team Emirates"},
 }
 
+// @BasePath /api/v1
 // getRiders responds with the list of all riders as JSON.
+// @Summary Get all riders
+// @Schemes
+// @Description Responds with the list of all riders as JSON.
+// @Produce json
+// @Success 200 {array} rider
+// @Router /riders [get]
 func getRiders(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, riders)
 }
