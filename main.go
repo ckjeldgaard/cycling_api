@@ -17,6 +17,7 @@ type rider struct {
 func main() {
 	router := gin.Default()
 	router.GET("/riders", getRiders)
+	router.POST("/riders", addRider)
 
 	router.Run("localhost:8080")
 }
@@ -33,4 +34,18 @@ var riders = []rider{
 // getRiders responds with the list of all riders as JSON.
 func getRiders(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, riders)
+}
+
+// addRider adds a new rider from JSON received in the request body.
+func addRider(c *gin.Context) {
+	var newRider rider
+
+	// Call BindJSON to bind the received JSON to newRider.
+	if err := c.BindJSON(&newRider); err != nil {
+		return
+	}
+
+	// Add the new rider to the slice.
+	riders = append(riders, newRider)
+	c.IndentedJSON(http.StatusCreated, newRider)
 }
