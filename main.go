@@ -17,6 +17,7 @@ type rider struct {
 func main() {
 	router := gin.Default()
 	router.GET("/riders", getRiders)
+	router.GET("/riders/:id", getRiderByID)
 	router.POST("/riders", addRider)
 
 	router.Run("localhost:8080")
@@ -48,4 +49,20 @@ func addRider(c *gin.Context) {
 	// Add the new rider to the slice.
 	riders = append(riders, newRider)
 	c.IndentedJSON(http.StatusCreated, newRider)
+}
+
+// getRiderByID locates the riders whose ID value matches the id
+// parameter sent by the client, then returns that rider as a response.
+func getRiderByID(c *gin.Context) {
+	id := c.Param("id")
+
+	// Loop over the list of riders, looking for
+	// a rider whose ID value matches the parameter.
+	for _, a := range riders {
+		if a.ID == id {
+			c.IndentedJSON(http.StatusOK, a)
+			return
+		}
+	}
+	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "rider not found"})
 }
